@@ -1,4 +1,8 @@
 import express from "express"; //モジュールの場合はこの書き方。
+import dotenv from "dotenv";//dotenvを読み込むにはモジュール必要
+dotenv.config();//dotenvconfigで宣言すると、envファイル内の変数をprocess.envに全て格納してくれる。index
+
+
 
 const app = express();//Expressという関数を実行したやつをapp変数の中に入れる。慣習的に
 const PORT = 3000;
