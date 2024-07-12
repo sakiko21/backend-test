@@ -71,7 +71,7 @@ export const backendpracDB = { //外部ファイルのため、indexで呼び出
                 CREATE TABLE purchase (
                     id SERIAL PRIMARY KEY,
                     user_id INTEGER NOT NULL,
-                    FOREIGN KEY (user_id) REFERENCES users (id),
+                    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
                     amount INTEGER NOT NULL,
                     product_ids INTEGER[] NOT NULL,
                     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -84,7 +84,8 @@ export const backendpracDB = { //外部ファイルのため、indexで呼び出
             try{
             const client = await backendpracDB.connect();
             const user = await backendpracDB.getUser(email);
-            if (user){
+            console.log('getUserの結果:', user);
+            if (user && !user.message){
                 return { error: 'このメールアドレスは既に登録されています' };
             }else{
             const result = await client.query(
@@ -106,26 +107,65 @@ export const backendpracDB = { //外部ファイルのため、indexで呼び出
                 [email]
             );
             return result.rows[0]|| {message: 'ユーザーが見つかりません'};//userが見つからない場合、エラーを返す
+            // return result.rows[0]|| null;
         } catch (error){
             console.log(error);
             return { error: '不明なエラーが発生しました' };
         } 
     },
-    updateUser: async (id, name, email, password) => {
+    updateUser: async (id, name, email) => {
         const client = await backendpracDB.connect();
-        const result = await client.query(
-            `UPDATE users SET name = $2, email = $3, password = $4 WHERE id = $1 RETURNING *`,
-            [id, name, email, password]
-        );
-        return result.rows[0];
+        try{
+            const userResult = await client.query(
+                `SELECT * FROM users WHERE id = $1`,
+                [id]
+            ); 
+            if(!userResult.rows[0]){
+                return { error: 'ユーザーが見つかりません' };
+            }
+            const updateResult = await client.query(
+                `UPDATE users SET name = $2, email = $3 WHERE id = $1 RETURNING *`,
+                [id, name, email]
+            );
+            return updateResult.rows[0];
+        } catch (error){
+            console.log(error);
+            return { error: '不明なエラーが発生しました' };
+        }
     },
     deleteUser: async (id) => {
         const client = await backendpracDB.connect();
-        const result = await client.query(
-            `DELETE FROM users WHERE id =$1`,
-            [id]
-        );
-        return { message: `ID ${id} を削除しました` };
+        try{
+            const userResult = await client.query(
+                `SELECT * FROM users WHERE id = $1`,
+                [id]
+            );
+            if(!userResult.rows[0]){
+                return { error: 'ユーザーが見つかりません' };
+            }
+            
+            const deleteResult = await client.query(
+                `DELETE FROM users WHERE id = $1 RETURNING *`,
+                [id]
+            );
+            return deleteResult.rows[0];
+        } catch (error){
+            console.log(error);
+            return { error: '不明なエラーが発生しました' };
+        } 
+    },
+    changePassword: async (id, password) => {
+        const client =await backendpracDB.connect();
+        try{
+            const updateResult = await client.query(
+                `UPDATE users SET password = $2 WHERE id = $1 RETURNING *`,
+                [id, password]
+            ); 
+            return updateResult.rows[0];
+        } catch (error){
+            console.log(error);
+            return { error: '不明なエラーが発生しました' };
+        } 
     },
     createProduct: async (title, description, price, image_path) => {
         try{
@@ -165,29 +205,59 @@ export const backendpracDB = { //外部ファイルのため、indexで呼び出
             return { error: '不明なエラーが発生しました' };
         }
     },
-    updateProducts: async (id, title, description, price, image_path) => {
+    updateProduct: async (id, title, description, price, image_path) => {
         const client = await backendpracDB.connect();
-        const result = await client.query(
-            `UPDATE products SET title = $2, description = $3, price = $4, image_path = $5 WHERE id = $1 RETURNING *`,
-            [id, title, description, price, image_path]
-        );
-        return result.rows[0];
+        try{
+            const productResult = await client.query(
+                `SELECT * FROM products WHERE id = $1`,
+                [id]
+            );
+            if(!productResult.rows[0]){
+                return { error: '商品が見つかりません' };
+            }
+            const updateResult = await client.query(
+                `UPDATE products SET title = $2, description = $3, price = $4, image_path = $5 WHERE id = $1 RETURNING *`,
+                [id, title, description, price, image_path]
+            );
+            return updateResult.rows[0];
+        } catch (error){
+            console.log(error);
+            return { error: '不明なエラーが発生しました' };
+        }
     },
-    deleteProducts: async (id) => {
+    deleteProduct: async (id) => {
         const client = await backendpracDB.connect();
-        const result = await client.query(
-            `DELETE FROM products WHERE id =$1`,
-            [id]
-        );
-        return { message: `商品ID ${id} を削除しました` };
+        try{
+            const productResult = await client.query(
+                `SELECT * FROM products WHERE id = $1`,
+                [id]
+            );
+            if(!productResult.rows[0]){
+                return { error: '商品が見つかりません' };
+            }
+            const deleteResult = await client.query(
+                `DELETE FROM products WHERE id = $1 RETURNING *`,
+                [id]
+            );
+            return deleteResult.rows[0];
+        } catch (error){
+            console.log(error);
+            return { error: '不明なエラーが発生しました' };
+        }
+        
     },
     createPurchase: async (user_id, amount, product_ids) => {
         const client = await backendpracDB.connect();
-        const result = await client.query(
-            `INSERT INTO purchase (user_id, amount, product_ids) VALUES ($1, $2, $3) RETURNING *`,
-            [user_id, amount, product_ids]
-        );
-        return result.rows[0];
+        try{
+            const result = await client.query(
+                `INSERT INTO purchase (user_id, amount, product_ids) VALUES ($1, $2, $3) RETURNING *`,
+                [user_id, amount, product_ids]
+            );
+            return result.rows[0];
+        } catch (error){
+            console.log(error);
+            return { error: '不明なエラーが発生しました' };
+        }
     },
     getPurchase: async (user_id) => {
         const client = await backendpracDB.connect();
@@ -202,3 +272,4 @@ export const backendpracDB = { //外部ファイルのため、indexで呼び出
 
 //backendpracDB.connect();//使い方の例
 //backendpracDB.createTable();//使い方の例
+
