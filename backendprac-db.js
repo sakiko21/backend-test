@@ -154,12 +154,12 @@ export const backendpracDB = { //外部ファイルのため、indexで呼び出
             return { error: '不明なエラーが発生しました' };
         } 
     },
-    changePassword: async (id, password) => {
+    changePassword: async ( id, hashedNewPassword) => {
         const client =await backendpracDB.connect();
         try{
             const updateResult = await client.query(
                 `UPDATE users SET password = $2 WHERE id = $1 RETURNING *`,
-                [id, password]
+                [ id, hashedNewPassword]
             ); 
             return updateResult.rows[0];
         } catch (error){

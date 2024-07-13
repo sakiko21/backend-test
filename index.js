@@ -37,13 +37,18 @@ app.post("/user/register", async(req, res) => {// データの登録は非同期
 });//12行目のapp.use(express.json());をかかないとbodyの中にデータが入らないので、必ずそのコードよりは下に書くこと
 
 app.post("/user/change-password", async(req, res) => {
-    const { id, oldPassword, newPassword} = req.body;
-    console.log({id, oldPassword, newPassword});
-    const user = await backendpracDB.getUserById(id);
+    //ユーザーは{email, oldPassword, newPassword}を送信する
+    const { email, oldPassword, newPassword} = req.body;
+    console.log({email, oldPassword, newPassword});
+    //getUserを呼び出し、データベースからemailに一致するユーザーを取得
+    const user = await backendpracDB.getUser(email);
     console.log({user});
+    //ユーザー情報にエラーが含まれている場合の処理。
+    //userがnullやundefinedでも安全にerrorプロパティを参照するために、オプショナルチェイニング（?.）を使っている
     if (user?.error){
         return res.status(500).send(user.error);
     }
+    //ユーザーが見つからない場合の処理
     if (!user){
         return res.status(404).send('ユーザーが見つかりません');
     }
@@ -52,14 +57,15 @@ app.post("/user/change-password", async(req, res) => {
     if (!isMatch) {
         return res.status(401).send('現在のパスワードが一致しません');
     }
-
+    //新しいパスワードをハッシュ化
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-    const changedPassUser = await backendpracDB.changePassword(id, hashedNewPassword);
+    //パスワードを変更
+    const changedPassUser = await backendpracDB.changePassword(user.id, hashedNewPassword);
     console.log(changedPassUser);
     if (changedPassUser.error){
         return res.status(500).send(changedPassUser.error);
     }
-    res.status(200).send(user);
+    res.status(200).send(changedPassUser);
 });//パスワードを変更するAPI
 
 app.put("/user/update", async(req, res) => {
