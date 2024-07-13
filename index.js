@@ -4,6 +4,7 @@ dotenv.config();//dotenvconfigで宣言すると、envファイル内の変数�
 import { backendpracDB } from "./backendprac-db.js";//初期化を実行したいので、サーバーを起動した時に初期化を実行させたい
 backendpracDB.init();//initすれば初期化実行し、テーブルの有無を見る
 import bcrypt from "bcryptjs";//パスワードをハッシュ化するためのモジュール
+import jwt from "jsonwebtoken";//JWTを使うためのモジュール
 
 const app = express();//Expressという関数を実行したやつをapp変数の中に入れる。慣習的に
 const PORT = 3000;
@@ -105,13 +106,16 @@ app.post("/login", async (req, res) => {
     if (!isMuch){
         return res.status(401).send('パスワードが一致しません');
     }
-
-    return res.status(200).send(user);
+    delete user.password;//パスワードを削除する
+    const token = jwt.sign(token, process.env.JWT_SECRET, {expiresIn: '1h'}); //第一引数にはトークン化したいデーター、第二引数には秘密鍵、第三引数にはオプション有効期限
+    return res.status(200).send(token);
 });
 //商品情報のAPI
 app.post("/product/create", async(req, res) => {
-    const { title, description, price, image_path} = req.body;
-    console.log({title, description, price, image_path});//これでデータが取れているか確認。{}で囲むとオブジェクトとして表示される
+    const { title, description, price, image_path, token} = req.body;
+    console.log({title, description, price, image_path, token});//これでデータが取れているか確認。{}で囲むとオブジェクトとして表示される
+    const user = jwt.verify(token, process.env.JWT_SECRET);//トークンを検証する。第一引数にはトークン、第二引数には秘密鍵
+    console.log({user});
     const product = await backendpracDB.createProduct(
         title, 
         description, 
