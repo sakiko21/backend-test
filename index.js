@@ -5,6 +5,10 @@ import { backendpracDB } from "./backendprac-db.js";//初期化を実行した�
 backendpracDB.init();//initすれば初期化実行し、テーブルの有無を見る
 import bcrypt from "bcryptjs";//パスワードをハッシュ化するためのモジュール
 import jwt from "jsonwebtoken";//JWTを使うためのモジュール
+import { 
+    userAuthentication 
+} from "./middleware/index.js";//ユーザー認証を行うためのミドルウェアなどインポート
+
 
 const app = express();//Expressという関数を実行したやつをapp変数の中に入れる。慣習的に
 const PORT = 3000;
@@ -106,22 +110,30 @@ app.post("/login", async (req, res) => {
     if (!isMuch){
         return res.status(401).send('パスワードが一致しません');
     }
-    delete user.password;//パスワードを削除する
-    const token = jwt.sign(token, process.env.JWT_SECRET, {expiresIn: '1h'}); //第一引数にはトークン化したいデーター、第二引数には秘密鍵、第三引数にはオプション有効期限
+    delete user.password;//下で、パスワードを除いたユーザー情報を渡したいので、パスワードを削除する
+    const token = jwt.sign({user}, process.env.JWT_SECRET, {expiresIn: '1d'}); //第一引数にはトークン化したいデーター、第二引数には秘密鍵、第三引数にはオプション有効期限
     return res.status(200).send(token);
 });
+app.get("/user/account", userAuthentication, async(req, res) => {
+    const user = req.user;
+    delete user.iat;
+    delete user.exp;
+    res.status(200).send(req.user);
+});//ユーザー情報を取得するAPI
+
+
 //商品情報のAPI
-app.post("/product/create", async(req, res) => {
+app.post("/product/create", userAuthentication, async(req, res) => {
     const { title, description, price, image_path, token} = req.body;
-    console.log({title, description, price, image_path, token});//これでデータが取れているか確認。{}で囲むとオブジェクトとして表示される
-    const user = jwt.verify(token, process.env.JWT_SECRET);//トークンを検証する。第一引数にはトークン、第二引数には秘密鍵
-    console.log({user});
+    console.log({title, description, price, image_path, token});
+    console.log("req.user:", req.user);
     const product = await backendpracDB.createProduct(
         title, 
         description, 
         price, 
         image_path
     );
+    console.log(product);
     if (product.error){
         return res.status(500).send(product.error);
     }
