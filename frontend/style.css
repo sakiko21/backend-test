@@ -1,0 +1,23 @@
+.container{
+    max-width: 1000px;
+    width: 100%;
+    margin: auto;
+}
+
+.form-area form{
+    display: flex;
+    flex-direction: column;
+    height: 50px;
+    border-radius: 20px;
+    width:100%;
+}
+.form-area form input {
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 2px;
+    margin: 0 auto;
+    text-align: center;
+}
+button{
+    width:100px;
+}
