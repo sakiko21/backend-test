@@ -21,3 +21,36 @@
 button{
     width:100px;
 }
+
+
+form>label,input,textarea{
+    display: block;
+    width: 100%;
+    
+}
+
+form>input,textarea{
+    margin-bottom: 30px;
+}
+form>label{
+    margin-bottom:10px;
+    text-align: center;
+}
+
+/***********************
+商品一覧
+***********************/
+
+ul{
+    display: flex;
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+li{
+    list-style-type: none;
+    width: 50%;
+    text-align: center;
+    margin: 20px 0;
+
+}

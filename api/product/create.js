@@ -1,9 +1,12 @@
 import { backendpracDB } from '../../backendprac-db.js';
 
 export async function createProduct(req, res) {
-    const { title, description, price, image_path, token} = req.body;
-    console.log({title, description, price, image_path, token});
+    const { title, description, price} = req.body;
+    console.log({title, description, price});
     console.log("req.user:", req.user);
+    //画像を保存すると、req.fileに画像が保持される。ので、productにimage_pathを格納するためにimagepathを定義
+    const image_path = req.file.path;
+    console.log("file:", req.file);
     const product = await backendpracDB.createProduct(
         title, 
         description, 

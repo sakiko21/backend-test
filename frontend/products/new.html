@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品の登録</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="form">
+            <form action="/product/create" method="post" enctype="multipart/form-data">
+                <label for="title">商品名</label>
+                <input type="text" name="title" id="title">
+                <label for="description">商品説明</label>
+                <textarea name="description" id="description" cols="30" rows="10"></textarea>
+                <label for="price">価格</label>
+                <input type="number" name="price" id="price">
+                <label for="product_image">画像</label>
+                <input type="file" name="product_image" id="product_image">
+                <input type="submit" value="商品を登録する">
+            </form>
+        </div>
+    </div>
+    
+</body>
+</html>

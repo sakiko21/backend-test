@@ -7,7 +7,7 @@ import bcrypt from "bcryptjs";//パスワードをハッシュ化するための
 import jwt from "jsonwebtoken";//JWTを使うためのモジュール
 import { 
     userAuthentication 
-} from "./middleware/index.js";//ユーザー認証を行うためのミドルウェアなどインポート
+} from "./middleware/index.js"; //ユーザー認証を行うためのミドルウェアなどインポート
 import {
     productRouter,
     userRouter,
@@ -18,6 +18,7 @@ import serveStatic from "serve-static";
 //import fs from "fs";//ファイルの中身を読み取るモジュール。
 import {readFileSync} from "fs";//readFileSyncの関数だけとってこれば良いので、
 import { join } from "path"; //パスを連結するためのモジュール
+import cookieParser from "cookie-parser";
 
 
 const app = express();//Expressという関数を実行したやつをapp変数の中に入れる。慣習的に
@@ -27,6 +28,7 @@ const PORT = 3000;
 app.use(express.json());//これを書くとbodyの中にjsonを格納する（これしないとbodyの中にデータが入らない？
 //カッコの中の処理を行なって、レスポンス返したり処理終了するのではなく、引き続き次を見に行きますよというもの。実際にやりたい処理とリクエストの間に処理を挟むなどミドルウェアを動かす時に使う
 //publicRouter(app);//↑が先に実行されないと、ボディで送られてきたデータを受け取れないので、publicRouterはその下に
+app.use(cookieParser());
 userRouter(app);
 productRouter(app);
 purchaseRouter(app);

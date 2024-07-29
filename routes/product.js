@@ -8,9 +8,26 @@ import {
 
 import { userAuthentication } from "../middleware/index.js";
 //トップページ、利用規約、お問い合わせなどを入れる想定
+import multer from "multer";
+
+//multerの初期化。destinationとfilenameを設定する
+const upload = multer({
+    storage: multer.diskStorage({
+        destination: function (req, file, cb) {
+            cb(null, 'frontend/assets/images/');//保存先を決める
+        },
+        filename: function (req, file, cb){
+            cb(null, file?.originalname);//ファイル名を決める（送られてきたファイル名をそのまま）
+        }
+    })
+});
+
 export function productRouter(app){
     //商品情報のAPI
-app.post("/product/create", userAuthentication, createProduct);//商品登録の処理を書く
+app.post("/product/create", userAuthentication, upload.single("product_image"), createProduct);//商品登録の処理を書く。ログインチェック後に、画像を保存させ、データベースに画像を保存させたい
+// 画像一つの場合はupload.single。
+//name属性を"product_image"に指定
+
 
 app.get("/products", getAllProducts);//商品情報を取得するAPI 
 

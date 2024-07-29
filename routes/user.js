@@ -4,7 +4,8 @@ import {
     updateUser,
     deleteUser,
     login,
-    account
+    account,
+    logout
 } from "../api/user/index.js";
 
 import { userAuthentication } from "../middleware/index.js";
@@ -23,4 +24,6 @@ app.delete("/user/delete", deleteUser);//ユーザー情報を削除するAPI
 app.post("/login", login );
 
 app.get("/user/account", userAuthentication, account);//ユーザー情報を取得するAPI
+
+app.delete("/logout", logout);
 }

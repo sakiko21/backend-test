@@ -1,7 +1,8 @@
 import jwt from "jsonwebtoken";//jwtモジュールをインポート
 
 export async function userAuthentication(req, res, next){
-    const {token} = req.body;//リクエストボディからトークンを取得
+    //const {token} = req.body;//リクエストボディからトークンを取得
+    const token = req.cookies.user_token;//クッキーに保存したトークンを取得。これにあたり、cookie-parserモジュールが必要
     if (!token){
         return res.status(401).send("トークンがありません");//トークンがない場合、401エラーを返す
     }
