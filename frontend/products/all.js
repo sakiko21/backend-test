@@ -11,8 +11,13 @@ fetch('/products', {
         data.forEach(product => {
             const listItem = document.createElement("li");
             const productLink = document.createElement("a");
-            productLink.href = `/product/${product.id}`;
+            productLink.href = `/products/product/${product.id}`;
             productLink.textContent = product.title;
+
+// // 各商品の詳細ページへのリンクを生成
+//productLink.href = `/product/${product.id}`;
+// productLink.textContent = product.name;
+
 
             listItem.appendChild(productLink);//aをliの中に追加する
             productsList.appendChild(listItem);//liをulの中に追加する

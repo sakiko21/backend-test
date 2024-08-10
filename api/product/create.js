@@ -5,8 +5,14 @@ export async function createProduct(req, res) {
     console.log({title, description, price});
     console.log("req.user:", req.user);
     //画像を保存すると、req.fileに画像が保持される。ので、productにimage_pathを格納するためにimagepathを定義
-    const image_path = req.file.path;
-    console.log("file:", req.file);
+    //const image_path = req.file.path;
+    let image_path;
+    if (process.env.NODE_ENV === "production") {
+        image_path = req.file.location;
+    }else{
+        image_path = req.file ? `/assets/images/${req.file.filename}` : null;
+    }
+    //console.log("file:", req.file);
     const product = await backendpracDB.createProduct(
         title, 
         description, 

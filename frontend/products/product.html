@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品詳細ページ</title>
+</head>
+<body>
+    <h1>商品詳細</h1>
+    <p id="product-name" class="title"></p>
+    <p id="product-description" class="description"></p>
+    <p id="product-price" class="price"></p>
+    <img id="product-image" class="image" src="" alt="">
+</body>
+<script>
+// fetch('/product/:id', {
+//     method: 'GET',
+//     headers: {
+//         'Content-Type': 'application/json'
+//     }
+// })
+//     .then(response => response.json())
+//     .then(data => {
+//     console.log(response);
+//     })
+//     .catch(error => {
+//         console.error('Error:', error);
+//     });
+document.addEventListener('DOMContentLoaded', () => {
+            // URLパスからIDを取得
+            const path = window.location.pathname;
+            const productId = path.split('/').pop(); // パスの最後の部分を取得
+
+            if (productId) {
+                // 商品情報を取得するAPIを呼び出す
+                fetch(`/product/${productId}`)
+                    .then(response => response.json())
+                    .then(product => {
+                        // 商品が存在する場合、詳細を表示
+                        if (product) {
+                            document.getElementById('product-name').textContent = product.name;
+                            document.getElementById('product-description').textContent = product.description;
+                            document.getElementById('product-price').textContent = `Price: ${product.price}`;
+                            document.getElementById('product-image').src = product.image_path;
+                        } else {
+                            document.getElementById('product-name').textContent = '商品が見つかりません';
+                            
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching product:', error);
+                        document.getElementById('product-name').textContent = '商品が見つかりません';
+                        
+                    });
+            } else {
+                document.getElementById('product-name').textContent = '商品が見つかりません';
+                
+            }
+        });
+
+</script>
+</html>

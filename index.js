@@ -17,7 +17,8 @@ import {
 import serveStatic from "serve-static";
 //import fs from "fs";//ファイルの中身を読み取るモジュール。
 import {readFileSync} from "fs";//readFileSyncの関数だけとってこれば良いので、
-import { join } from "path"; //パスを連結するためのモジュール
+//import { join } from "path"; //パスを連結するためのモジュール
+import path from "path";
 import cookieParser from "cookie-parser";
 
 
@@ -33,9 +34,21 @@ userRouter(app);
 productRouter(app);
 purchaseRouter(app);
 
+
+
 const STATIC_PATH = `${process.cwd()}/frontend`;//process.cwdでルートディレクトリのパスを作ってくれる。ルートディレクトリから見てfrontendというディレクトリにアクセスします、と書きたい
 //app.use(serveStatic("frontend", {index: ["index.html"]}));//静的ファイルはフロントエンドにアクセスする、ローカルならこの書き方でも良いが、デプロイした後だとこの書き方だとまずいので、、↑
+
+
+// /products/product/:id ルートで共通のテンプレートを提供
+app.get("/products/product/:id", (req, res) => {
+    res.sendFile(path.join(STATIC_PATH, "products/product.html"));
+});
+
+
+
 app.use(serveStatic(STATIC_PATH, {index: ["index.html"]}));
+
 // app.get("/", (req, res) => {
 //     const contentHtml = readFileSync(STATIC_PATH + "/index.html", "utf8"); //fs.readFileSync関数を使うと、このファイルを取得できる。第一引数がパス。文字コードが第二引数
 //     //readFileSync使うと、関数にasync awaitつけなくても、readFileSyncで読み込みを待ってから、次の処理に進める。ちなみに、readFile を使用した場合には、asyncawaitが必要
