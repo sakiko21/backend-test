@@ -5,12 +5,24 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>アカウントページ</title>
+    <link rel="stylesheet" href="../style.css">
     <script src="./logout.js" defer></script>
     <script src="./account.js" defer></script>
     
 </head>
 <body>
-    <p>アカウントページだよ</p>
-    <button id="logoutButton">ログアウト</button>
+    <header>
+        <nav class="header-nav">
+            <ul class="header-lists">
+                <li><a href="/" class="button top">トップページ</a></li>
+                <li><a href="/cart" class="button cart">カート</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="container">
+       <h1>アカウントページ</h1>
+       <div id ="history">商品購入履歴を表示したい</div>
+      <button id="logoutButton">ログアウト</button>
+    </div>
 </body>
 </html>

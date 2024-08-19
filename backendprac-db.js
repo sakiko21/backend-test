@@ -1,20 +1,30 @@
 //dbにアクセスする機能を開発。node.jsをpostgresに接続するにはpgを使う。データベースに接続するためのファイルを作成。postgresに接続するための関数と価格
 import pg from "pg";
-export const backendpracDB = { //外部ファイルのため、indexで呼び出すためにexportで宣言。いろんな機能をまとめて作りたいのでconst ..DBをオブジェクトとして宣言。そうすることで
+import dotenv from 'dotenv';
+
+dotenv.config(); // .envファイルを読み込む
+
+
+
+//export const backendpracDB = { //外部ファイルのため、indexで呼び出すためにexportで宣言。いろんな機能をまとめて作りたいのでconst ..DBをオブジェクトとして宣言。そうすることで
     //connect: () => {//コネクトのきのうを作ったり
     //},
     //createTable: () => {//creafteテーブルの機能を作ったり、
     //}
-    connect:async() => {
-        const client = new pg.Pool({
+    //connect:async() => {
+        //const client = new pg.Pool({
+        const pool = new pg.Pool({
             connectionString: process.env.DATABASE_URL,//接続先として、const connectionString = "postgres://user:pass@DBのアドレス:ポート/DB名"。ここに書くとuserpassなど個人情報他人に見られるとまずいので、環境変数に入れる。
             ssl: false
         });
-        await client.connect();//接続を実行するためのコネクト関数を実行
-        return client;//接続終わったpostgresの情報を返す
-    },
+        //await client.connect();//接続を実行するためのコネクト関数を実行
+        //return client;//接続終わったpostgresの情報を返す
+    //},
+    export const backendpracDB ={
     init: async() => {
-        const client = await backendpracDB.connect();
+        //const client = await backendpracDB.connect();
+        const client = await pool.connect();
+        try{
         const hasUsersTable = await client.query(
             `SELECT EXISTS(
                 SELECT 1
@@ -78,17 +88,21 @@ export const backendpracDB = { //外部ファイルのため、indexで呼び出
                 );
             `);
         }
+    } finally {
+        client.release();
+    }
     },//初期化。→これからユーザーテーブルや購入の登録などしていく。もしユーザテーブルなければ作る。テーブルあるかどうかのチェックをし、なければ作りに行く。これはテーブルの初期化作業を行いたい。テーブルできていないとデータ保存時にエラーになるので
     createUser: async (name, email, password) => {
         //エラーハンドリングを書く
             try{
-            const client = await backendpracDB.connect();
+            //const client = await backendpracDB.connect();
             const user = await backendpracDB.getUser(email);
             console.log('getUserの結果:', user);
             if (user && !user.message){
                 return { error: 'このメールアドレスは既に登録されています' };
             }else{
-            const result = await client.query(
+            //const result = await client.query(
+            const result = await pool.query(
                 `INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *`,
                 [name, email, password]
             );
@@ -101,8 +115,9 @@ export const backendpracDB = { //外部ファイルのため、indexで呼び出
     },
     getUser: async (email) => {
         try{
-            const client = await backendpracDB.connect();
-            const result = await client.query(
+            //const client = await backendpracDB.connect();
+            //const result = await client.query(
+            const result = await pool.query(
                 `SELECT * FROM users WHERE email = $1`,
                 [email]
             );
@@ -114,9 +129,10 @@ export const backendpracDB = { //外部ファイルのため、indexで呼び出
         } 
     },
     updateUser: async (id, name, email) => {
-        const client = await backendpracDB.connect();
+        //const client = await backendpracDB.connect();
         try{
-            const userResult = await client.query(
+            //const userResult = await client.query(
+            const userResult = await pool.query(
                 `SELECT * FROM users WHERE id = $1`,
                 [id]
             ); 
@@ -134,9 +150,10 @@ export const backendpracDB = { //外部ファイルのため、indexで呼び出
         }
     },
     deleteUser: async (id) => {
-        const client = await backendpracDB.connect();
+        //const client = await backendpracDB.connect();
         try{
-            const userResult = await client.query(
+            //const userResult = await client.query(
+            const userResult = await pool.query(
                 `SELECT * FROM users WHERE id = $1`,
                 [id]
             );
@@ -144,7 +161,8 @@ export const backendpracDB = { //外部ファイルのため、indexで呼び出
                 return { error: 'ユーザーが見つかりません' };
             }
             
-            const deleteResult = await client.query(
+            //const deleteResult = await client.query(
+            const deleteResult = await pool.query(
                 `DELETE FROM users WHERE id = $1 RETURNING *`,
                 [id]
             );
@@ -155,9 +173,10 @@ export const backendpracDB = { //外部ファイルのため、indexで呼び出
         } 
     },
     changePassword: async ( id, hashedNewPassword) => {
-        const client =await backendpracDB.connect();
+        //const client =await backendpracDB.connect();
         try{
-            const updateResult = await client.query(
+            //const updateResult = await client.query(
+            const updateResult = await pool.query(
                 `UPDATE users SET password = $2 WHERE id = $1 RETURNING *`,
                 [ id, hashedNewPassword]
             ); 
@@ -169,8 +188,8 @@ export const backendpracDB = { //外部ファイルのため、indexで呼び出
     },
     createProduct: async (title, description, price, image_path) => {
         try{
-            const client = await backendpracDB.connect();
-            const result = await client.query(
+            //const client = await backendpracDB.connect();
+            const result = await pool.query(
                 `INSERT INTO products (title, description, price, image_path) VALUES ($1, $2, $3, $4) RETURNING *`,
                 [title, description, price, image_path]
             );
@@ -182,8 +201,9 @@ export const backendpracDB = { //外部ファイルのため、indexで呼び出
     },
     getProducts: async () => {
         try{
-            const client = await backendpracDB.connect();
-            const result = await client.query(
+            //const client = await backendpracDB.connect();
+            //const result = await client.query(
+            const result = await pool.query(
                 `SELECT * FROM products`
             );
             return result.rows;//一個もデータない場合は空の配列が返る
@@ -193,9 +213,11 @@ export const backendpracDB = { //外部ファイルのため、indexで呼び出
         }
     },
     getProduct: async (id) => {
-        try{
-            const client = await backendpracDB.connect();
-            const result = await client.query(
+        //const client = await backendpracDB.connect();
+        try{  
+            //const result = await client.query(
+            //const result = await client.query(
+            const result = await pool.query(
                 `SELECT * FROM products WHERE id = $1`,
                 [id]
             );
@@ -206,16 +228,18 @@ export const backendpracDB = { //外部ファイルのため、indexで呼び出
         }
     },
     updateProduct: async (id, title, description, price, image_path) => {
-        const client = await backendpracDB.connect();
+        //const client = await backendpracDB.connect();
         try{
-            const productResult = await client.query(
+            //const productResult = await client.query(
+            const productResult = await pool.query(
                 `SELECT * FROM products WHERE id = $1`,
                 [id]
             );
             if(!productResult.rows[0]){
                 return { error: '商品が見つかりません' };
             }
-            const updateResult = await client.query(
+            //const updateResult = await client.query(
+            const updateResult = await pool.query(
                 `UPDATE products SET title = $2, description = $3, price = $4, image_path = $5 WHERE id = $1 RETURNING *`,
                 [id, title, description, price, image_path]
             );
@@ -226,16 +250,18 @@ export const backendpracDB = { //外部ファイルのため、indexで呼び出
         }
     },
     deleteProduct: async (id) => {
-        const client = await backendpracDB.connect();
+        //const client = await backendpracDB.connect();
         try{
-            const productResult = await client.query(
+            //const productResult = await client.query(
+            const productResult = await pool.query(
                 `SELECT * FROM products WHERE id = $1`,
                 [id]
             );
             if(!productResult.rows[0]){
                 return { error: '商品が見つかりません' };
             }
-            const deleteResult = await client.query(
+            //const deleteResult = await client.query(
+            const deleteResult = await pool.query(
                 `DELETE FROM products WHERE id = $1 RETURNING *`,
                 [id]
             );
@@ -247,9 +273,10 @@ export const backendpracDB = { //外部ファイルのため、indexで呼び出
         
     },
     createPurchase: async (user_id, amount, product_ids) => {
-        const client = await backendpracDB.connect();
+        //const client = await backendpracDB.connect();
         try{
-            const result = await client.query(
+            //const result = await client.query(
+            const result = await pool.query(
                 `INSERT INTO purchase (user_id, amount, product_ids) VALUES ($1, $2, $3) RETURNING *`,
                 [user_id, amount, product_ids]
             );
@@ -260,12 +287,17 @@ export const backendpracDB = { //外部ファイルのため、indexで呼び出
         }
     },
     getPurchase: async (user_id) => {
-        const client = await backendpracDB.connect();
-        const result = await client.query(
-            `SELECT * FROM purchase WHERE user_id = $1`,
-            [user_id]
-        );
-        return result.rows;
+        //const client = await backendpracDB.connect();
+        try{
+            const result = await pool.query(
+                `SELECT * FROM purchase WHERE user_id = $1`,
+                [user_id]
+            );
+            return result.rows;
+            } catch(error) {
+                console.log(error);
+                return { error: '不明なエラーが発生しました' };
+            }
     },
     
 };

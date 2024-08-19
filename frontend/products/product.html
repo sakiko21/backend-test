@@ -5,13 +5,95 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>商品詳細ページ</title>
+    <link rel="stylesheet" href="../style.css">
 </head>
 <body>
-    <h1>商品詳細</h1>
-    <p id="product-name" class="title"></p>
-    <p id="product-description" class="description"></p>
-    <p id="product-price" class="price"></p>
-    <img id="product-image" class="image" src="" alt="">
+    <style>
+        body{
+            margin:0!important;
+        }
+        .header-nav {
+            background-color: #f8f8f8;
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .header-lists {
+            display: flex;
+            justify-content: center;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .header-lists li {
+            margin: 0 15px;
+        }
+
+        .header-lists li a {
+            color: #000;
+            padding: 10px 20px;
+            text-decoration: none;
+        }
+
+        .header-lists li a:hover {
+            opacity: 0.5;
+        }
+
+        .container{
+            max-width: 1000px;
+            width: 100%;
+            margin: auto;
+            padding: 5%;
+            box-sizing: border-box;
+        }
+        img#product-image {
+            width: 100%;
+        }
+
+        .product-area {
+            display: flex;
+            justify-content: space-between;
+        }
+        .product-area-left, .product-area-right{
+            width: 48%;
+        }
+        @media screen and (max-width:767px) {
+            .product-area {
+                display: block;
+            }
+            .product-area-left, .product-area-right{
+                width: 100%;
+            }
+        }
+
+        
+        
+    </style>
+    <header>
+        <nav class="header-nav">
+            <ul class="header-lists">
+                <li><a href="/" class="button top">トップページ</a></li>
+                <li><a href="/login" class="button login">ログイン</a></li>
+                <li><a href="/cart" class="button cart">カート</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="container">
+        <a href="/products/all" >＜　商品一覧へ戻る</a>
+        <h1>商品詳細</h1>
+        <div class="product-area">
+            <div class="product-area-left">
+                <img id="product-image" class="image" src="" alt="">
+            </div>
+            <div class="product-area-right">
+                <p id="product-name" class="title"></p>
+                <p id="product-description" class="description"></p>
+                <p id="product-price" class="price"></p>
+                <button id="add-to-cart">カートに追加</button>
+            </div>
+        </div>
+    </div>
 </body>
 <script>
 // fetch('/product/:id', {
@@ -27,7 +109,7 @@
 //     .catch(error => {
 //         console.error('Error:', error);
 //     });
-document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', () => {
             // URLパスからIDを取得
             const path = window.location.pathname;
             const productId = path.split('/').pop(); // パスの最後の部分を取得
@@ -41,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (product) {
                             document.getElementById('product-name').textContent = product.name;
                             document.getElementById('product-description').textContent = product.description;
-                            document.getElementById('product-price').textContent = `Price: ${product.price}`;
+                            document.getElementById('product-price').textContent = `価格: ${product.price}`;
                             document.getElementById('product-image').src = product.image_path;
                         } else {
                             document.getElementById('product-name').textContent = '商品が見つかりません';
@@ -58,6 +140,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 
             }
         });
+        document.getElementById('add-to-cart').addEventListener('click', () => {
+            const productId = window.location.pathname.split('/').pop(); // 商品IDを取得（URL末尾に/しょうひんID　としているから）
+            let cart = JSON.parse(localStorage.getItem('cart')) || []; // ローカルストレージからカートを取得（なければ空配列）
+            cart.push(productId); // カートに商品IDを追加
+            localStorage.setItem('cart', JSON.stringify(cart)); // ローカルストレージに保存
+            // カートページへ遷移
+            window.location.href = '/cart'; // 遷移先のカートページのURLを指定
+        });
+
 
 </script>
 </html>

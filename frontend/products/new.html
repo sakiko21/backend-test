@@ -8,7 +8,17 @@
     <link rel="stylesheet" href="../style.css">
 </head>
 <body>
+    <header>
+        <nav class="header-nav">
+            <ul class="header-lists">
+                <li><a href="../" class="button top">トップページ</a></li>
+                <li><a href="../login" class="button login">ログイン</a></li>
+                <li><a href="../products/all" class="button products">商品一覧</a></li>
+            </ul>
+        </nav>
+    </header>
     <div class="container">
+        <h1>商品登録ページ</h1>
         <div class="form">
             <form action="/product/create" method="post" enctype="multipart/form-data">
                 <label for="title">商品名</label>
@@ -24,5 +34,30 @@
         </div>
     </div>
     
+    <script>
+        document.getElementById('productForm').onsubmit = async function(event) {
+            event.preventDefault(); // フォームの通常の送信を防ぐ
+
+            const formData = new FormData(this); // フォームデータを取得
+
+            try {
+                const response = await fetch('/product/create', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    alert('商品が正常に登録されました。');
+                    window.location.href = '/products/all'; // 商品一覧ページにリダイレクト
+                } else {
+                    const errorData = await response.json();
+                    alert('エラーが発生しました: ' + errorData.error);
+                }
+            } catch (error) {
+                alert('エラーが発生しました: ' + error.message);
+            }
+        };
+    </script>
+
 </body>
 </html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cart</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <header>
+        <nav class="header-nav">
+            <ul class="header-lists">
+                <li><a href="./" class="button top">トップページ</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="container">
+        <h1>カート</h1>
+        <p>カート内の商品情報を記載</p>
+        
+         <div id="cart"></div>
+        <button id="cart-clear">カートを空にする</button>
+        <button id="checkout">購入する</button>
+        <br>
+        <a class="continue" href="./products/all">←お買い物を続ける </a>
+
+    </div>
+
+    <script>
+        let totalAmount = 0; // 合計金額を初期化
+        //カートに商品を表示させるためのコード
+        document.addEventListener('DOMContentLoaded', async () => {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            if (cart.length > 0) {
+                for (let productId of cart) {
+                    const response = await fetch(`/product/${productId}`);
+                    const product = await response.json();
+                    displayProductInCart(product); // 商品情報をカートに表示する関数
+                    totalAmount += product.price;//各商品の価格を合計に加算
+                }
+                displayTotalAmount(totalAmount);
+                
+            } else {
+                // カートが空の場合の処理
+                document.getElementById('cart').innerText = 'カートは空です';
+            }
+        });
+        function displayProductInCart(product) {
+            // 商品情報をカート画面に追加する処理
+            const cartContainer = document.getElementById('cart');
+            const productElement = document.createElement('div');
+            productElement.textContent = `${product.title} -  ${product.price}円`;
+            cartContainer.appendChild(productElement);
+        
+        }
+        function displayTotalAmount(totalAmount) {
+        // 合計金額をカートの下に表示する処理
+        const cartContainer = document.getElementById('cart');
+        const totalAmountElement = document.createElement('p');
+        totalAmountElement.textContent = `合計金額: ${totalAmount}円`;
+        cartContainer.appendChild(totalAmountElement);
+    }
+
+        //カートクリア機能
+        document.getElementById('cart-clear').onclick = function(){
+            localStorage.removeItem('cart');//ローカルストレージからカート情報削除
+            document.getElementById('cart').innerText = 'カートは空です';
+            document.getElementById('total-amount').textContent = '合計: 0円';
+            alert("カートの内容を削除しました");
+        };
+
+        //購入ボタン機能
+        document.getElementById('checkout').onclick = async function(){
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];//ローカルストレージからカート情報を取得する
+            const product_ids = cart;
+            const amount = totalAmount;
+            if (product_ids.length === 0) {
+                alert("カートが空です。商品を追加してください。");
+                return; // カートが空の場合は購入処理を実行しない
+            }
+            const userResponse = await fetch ('/user/account');
+            if (!userResponse.ok){
+                alert("ログインしてください");
+                window.location.href = './login'; // ログインページにリダイレクト
+                return; // ログインしていない場合は購入処理を実行しない
+            }
+            const userData = await userResponse.json();
+            const user_id = userData.user.id;
+            console.log(userData.user.id);
+            const response = await fetch('/purchase/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ user_id, amount, product_ids}),
+            });
+            if (response.ok) {
+                alert("購入が完了しました");
+                localStorage.removeItem('cart'); // 購入が成功したらカートをクリア
+                window.location.href = '/users/account'; // アカウントページにリダイレクト
+            } else {
+                alert("購入に失敗しました");
+            }
+
+        }
+
+    </script>
+    
+</body>
+</html>

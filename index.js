@@ -68,15 +68,20 @@ app.use(serveStatic(STATIC_PATH, {index: ["index.html"]}));
 // })
 
 app.get("/*", (req, res) => {
-    const originalUrl = req.originalUrl;//originaUrlをを使うことで、パスを取得できる。
-    const contentHtml = readFileSync(STATIC_PATH + originalUrl + ".html", "utf8"); //パス名とディレクトリ名がを一致させれば、良い
-    res
-        .status(200)
-        .setHeader("Content-Type", "text/html")
-        .send(contentHtml);
+    try{
+        const originalUrl = req.originalUrl;//originaUrlをを使うことで、パスを取得できる。
+        const contentHtml = readFileSync(STATIC_PATH + originalUrl + ".html", "utf8"); //パス名とディレクトリ名がを一致させれば、良い
+        res
+            .status(200)
+            .setHeader("Content-Type", "text/html")
+            .send(contentHtml);
+    } catch(error){
+        res.status(404).send("ページが見つかりません");
+    }
 });
 
 
+app.get('/favicon.ico', (req, res) => res.status(204));
 
 
 
@@ -85,9 +90,12 @@ app.get("/*", (req, res) => {
 //    res.send("<h1>Users Path</h1>")
 //});
 
+// app.listen(PORT, () =>{
+//     console.log(`Server running on port ${PORT}`);
 
-app.listen(PORT, () =>{
-    console.log(`Server running on port ${PORT}`);
+ app.listen(process.env.PORT, () =>{
+     console.log(`Server running on port ${process.env.PORT}`);
+     
 });//サーバーを起動する。サーバーにはドメインとポート番号が必要。ドメインはローカルホスト（ドメイン）、ポート番号は第一引数へ、第二引数にはコールバック関数
 
 //リクエストの受付用にルーティングをする

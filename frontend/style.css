@@ -1,7 +1,49 @@
+/***************
+全体
+***************/
+body{
+    margin:0!important;
+}
+.header-nav {
+    background-color: #f8f8f8;
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.header-lists {
+    display: flex;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.header-lists li {
+    margin: 0 15px;
+}
+
+.header-lists li a {
+    color: #000;
+    padding: 10px 20px;
+   
+}
+
+.header-lists li a:hover {
+    opacity: 0.5;
+}
+
+
 .container{
     max-width: 1000px;
     width: 100%;
     margin: auto;
+    padding: 5%;
+    box-sizing: border-box;
+}
+
+a{
+    text-decoration: none;
+    color: #000;
 }
 
 .form-area form{
@@ -17,24 +59,28 @@
     border-radius: 2px;
     margin: 0 auto;
     text-align: center;
+    width: 100%;
 }
 button{
-    width:100px;
+    width:150px;
+    padding: 5px;
 }
 
 
-form>label,input,textarea{
+.field>label,input,textarea{
     display: block;
     width: 100%;
-    
+    padding: 5px;
+    box-sizing: border-box;
 }
 
-form>input,textarea{
+.field>input,textarea{
     margin-bottom: 30px;
 }
-form>label{
+
+.field>label{
     margin-bottom:10px;
-    text-align: center;
+
 }
 
 /***********************
@@ -42,15 +88,23 @@ form>label{
 ***********************/
 
 ul{
-    display: flex;
     width: 100%;
-    flex-wrap: wrap;
-    justify-content: flex-start;
+    padding:5px!important;
 }
 li{
     list-style-type: none;
-    width: 50%;
-    text-align: center;
-    margin: 20px 0;
-
+    margin: 10px 0;
 }
+
+a.button{
+    /*background-color: #eee;*/
+    padding:  10px 20px;
+    
+}
+
+
+a.continue{
+    display: block;
+    margin: 20px 0;
+}
+

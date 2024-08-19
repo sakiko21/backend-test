@@ -9,10 +9,21 @@
     <script src="./all.js" defer></script>
 </head>
 <body>
-    <h1>all_products</h1>
-    <div class="product-all">
-        <ul id="product-list"></ul>
+    <header>
+        <nav class="header-nav">
+            <ul class="header-lists">
+                <li><a href="../" class="button top">トップページ</a></li>
+                <li><a href="../login" class="button login">ログイン</a></li>
+                <li><a href="../cart" class="button cart">カート</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="container">
+        <h1>商品一覧</h1>
+        <a href="../products/new" style="display:inline-block;background-color:#efefef;padding: 5px 10px;border:0.5px #000 solid; border-radius:5px;">商品登録する</a>
+        <div class="product-all">
+            <ul id="product-list"></ul>
+        </div>
     </div>
-    
 </body>
 </html>

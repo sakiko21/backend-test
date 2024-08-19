@@ -14,7 +14,7 @@ function submit(){
             if (data.error) {
                 alert(data.error);
             } else {
-                alert('User created successfully');
+                alert('ユーザー登録に成功しました');
             }
         })
         .catch((error) => {

@@ -1,24 +1,34 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
+    try{
     // /user/account エンドポイントを叩いてユーザー情報を取得
-    fetch('/user/account')
-        .then(response => {
-            if (response.redirected) {
-                // トップページにリダイレクトされた場合
-                window.location.href = response.url;
-            } else if (!response.ok) {
-                throw new Error('Failed to fetch user account');
-            }
-            return response.json();
-        })
-        .then(user => {
-            // ユーザー情報を使用してページを更新
-            console.log('User:', user);
-            // 必要に応じてページの内容を更新
-        })
-        .catch(error => {
-            window.location.href = '/'; // トップページへリダイレクト
-            console.error('ユーザー情報の取得に失敗:', error);
-            alert('ユーザー情報の取得に失敗しました');
-            
+    const userResponse = await fetch('/user/account');
+    if (userResponse.redirected) {
+        // トップページにリダイレクトされた場合
+        window.location.href = response.url;
+    } else if (!userResponse.ok) {
+        throw new Error('エラー');
+    }
+    const user = await userResponse.json();
+    
+    const user_id = user.user.id; // userオブジェクトの中にuserフィールドがあるため
+    const purchaseResponse = await fetch(`/purchase/get`);
+    const purchases = await purchaseResponse.json();
+
+    const historyContainer = document.getElementById("history");
+
+    //購入履歴がある時
+    if (purchases.length > 0){
+        purchases.forEach(purchase => {
+            const purchaseElement = document.createElement('div');
+            purchaseElement.textContent = `購入ID: ${purchase.id}, 合計金額: ${purchase.amount}円, 商品ID: ${purchase.product_ids.join(', ')}`;
+            historyContainer.appendChild(purchaseElement);
         });
+    } else {
+        historyContainer.textContent = '購入履歴はありません。';
+    }
+} catch(error) {
+    console.error('ユーザー情報の取得に失敗:', error);
+    alert('ユーザー情報の取得に失敗しました');
+    window.location.href = '/'; // トップページへリダイレクト
+} 
 });
